@@ -1,6 +1,7 @@
 # SisuCards app
 
 Static React + Vite frontend hosted on GitHub Pages, with Supabase Auth + Postgres.
+Auto-deploy is configured through GitHub Actions on pushes to `main`.
 
 ## Requirements
 
