@@ -17,7 +17,8 @@ returns trigger
 language plpgsql
 as $$
 begin
-  new.user_id := auth.uid();
+  -- In SQL editor/manual migrations auth.uid() can be null; keep explicit user_id in that case.
+  new.user_id := coalesce(auth.uid(), new.user_id);
   new.updated_at := now();
   return new;
 end;
@@ -100,17 +101,19 @@ language plpgsql
 security invoker
 as $$
 declare
+  p_card_id alias for $1;
+  p_result alias for $2;
   normalized_result text;
 begin
-  normalized_result := lower(btrim(result));
+  normalized_result := lower(btrim(p_result));
   if normalized_result not in ('correct', 'incorrect') then
-    raise exception 'Invalid result: %, expected correct or incorrect', result;
+    raise exception 'Invalid result: %, expected correct or incorrect', p_result;
   end if;
 
   if not exists (
     select 1
     from public.words
-    where id = card_id
+    where id = p_card_id
       and user_id = auth.uid()
   ) then
     raise exception 'Card not found for current user';
@@ -127,7 +130,7 @@ begin
   )
   values (
     auth.uid(),
-    card_id,
+    p_card_id,
     1,
     case when normalized_result = 'correct' then 1 else 0 end,
     case when normalized_result = 'incorrect' then 1 else 0 end,
