@@ -121,8 +121,8 @@ export async function getReviewQueue(input: GetReviewQueueInput): Promise<Review
 
 export async function recordReview(cardId: string, result: ReviewResult): Promise<void> {
   const { error } = await supabase.rpc("record_review", {
-    card_id: cardId,
-    result
+    p_card_id: cardId,
+    p_result: result
   });
 
   if (error) {

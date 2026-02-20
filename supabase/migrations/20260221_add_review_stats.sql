@@ -105,6 +105,10 @@ declare
   p_result alias for $2;
   normalized_result text;
 begin
+  if auth.uid() is null then
+    raise exception 'record_review must be called by an authenticated user context';
+  end if;
+
   normalized_result := lower(btrim(p_result));
   if normalized_result not in ('correct', 'incorrect') then
     raise exception 'Invalid result: %, expected correct or incorrect', p_result;
