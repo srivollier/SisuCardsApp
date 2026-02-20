@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { DatasetTable } from "../components/DatasetTable";
+import { DATASET_CONFIGS } from "../types/datasets";
 import { ImportPage } from "./ImportPage";
 import { ReviewPage } from "./ReviewPage";
-import { DATASET_CONFIGS, DatasetName } from "../types/datasets";
-
-type DashboardTab = DatasetName | "import" | "review";
 
 type DashboardProps = {
   email: string | null;
@@ -12,19 +10,10 @@ type DashboardProps = {
 };
 
 export function Dashboard({ email, onSignOut }: DashboardProps) {
-  const [activeTab, setActiveTab] = useState<DashboardTab>("words");
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const tabs = useMemo(
-    () => [
-      { id: "words" as const, label: "Words" },
-      { id: "verbs" as const, label: "Verbs" },
-      { id: "pikkusanat" as const, label: "Pikkusanat" },
-      { id: "review" as const, label: "Review" },
-      { id: "import" as const, label: "Import" }
-    ],
-    []
+  const [activeSection, setActiveSection] = useState<"review" | "words" | "verbs" | "pikkusanat" | "import">(
+    "review"
   );
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -47,27 +36,50 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
         </button>
       </header>
 
-      <div className="tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={activeTab === tab.id ? "active" : ""}
-            onClick={() => setActiveTab(tab.id)}
-            type="button"
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <nav className="top-menu">
+        <button
+          type="button"
+          className={activeSection === "review" ? "active" : ""}
+          onClick={() => setActiveSection("review")}
+        >
+          Review
+        </button>
+        <button
+          type="button"
+          className={activeSection === "words" ? "active" : ""}
+          onClick={() => setActiveSection("words")}
+        >
+          Words
+        </button>
+        <button
+          type="button"
+          className={activeSection === "verbs" ? "active" : ""}
+          onClick={() => setActiveSection("verbs")}
+        >
+          Verbs
+        </button>
+        <button
+          type="button"
+          className={activeSection === "pikkusanat" ? "active" : ""}
+          onClick={() => setActiveSection("pikkusanat")}
+        >
+          Pikkusanat
+        </button>
+        <button
+          type="button"
+          className={activeSection === "import" ? "active" : ""}
+          onClick={() => setActiveSection("import")}
+        >
+          Import
+        </button>
+      </nav>
 
       <main>
-        {activeTab === "import" ? (
-          <ImportPage />
-        ) : activeTab === "review" ? (
-          <ReviewPage />
-        ) : (
-          <DatasetTable config={DATASET_CONFIGS[activeTab]} />
-        )}
+        {activeSection === "review" ? <ReviewPage /> : null}
+        {activeSection === "words" ? <DatasetTable config={DATASET_CONFIGS.words} /> : null}
+        {activeSection === "verbs" ? <DatasetTable config={DATASET_CONFIGS.verbs} /> : null}
+        {activeSection === "pikkusanat" ? <DatasetTable config={DATASET_CONFIGS.pikkusanat} /> : null}
+        {activeSection === "import" ? <ImportPage /> : null}
       </main>
     </div>
   );
