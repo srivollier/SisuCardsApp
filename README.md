@@ -53,16 +53,17 @@ npm run build
 
 ## GitHub Pages deploy
 
-This app is configured with `base: "./"` in `vite.config.ts`, which works for static hosting.
+This project includes automated deploy workflow:
 
-Manual deploy option:
+- `.github/workflows/deploy-pages.yml`
 
-1. Build the app: `npm run build`
-2. Publish the `dist/` folder to your Pages branch (`gh-pages` or docs workflow)
+### One-time GitHub setup
 
-If you want an automated GitHub Actions workflow, add one that:
+1. Push this project to `main`.
+2. In your GitHub repo, open `Settings` -> `Pages`.
+3. Set `Build and deployment` source to `GitHub Actions`.
+4. In `Settings` -> `Secrets and variables` -> `Actions`, add:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
 
-- installs deps
-- runs `npm run build`
-- uploads `dist/` as Pages artifact
-- deploys via `actions/deploy-pages`
+After this, each push to `main` deploys automatically.
