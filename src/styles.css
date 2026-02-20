@@ -30,12 +30,14 @@ label {
 
 input,
 textarea,
+select,
 button {
   font: inherit;
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 0.55rem 0.65rem;
   border-radius: 8px;
@@ -153,4 +155,17 @@ td {
 
 .success {
   color: #15803d;
+}
+
+.review-controls label {
+  min-width: 160px;
+}
+
+.review-card h3 {
+  margin-bottom: 0.5rem;
+}
+
+.review-answer {
+  font-size: 1.1rem;
+  font-weight: 600;
 }

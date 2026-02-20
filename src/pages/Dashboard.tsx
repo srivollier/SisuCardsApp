@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { DatasetTable } from "../components/DatasetTable";
 import { ImportPage } from "./ImportPage";
+import { ReviewPage } from "./ReviewPage";
 import { DATASET_CONFIGS, DatasetName } from "../types/datasets";
 
-type DashboardTab = DatasetName | "import";
+type DashboardTab = DatasetName | "import" | "review";
 
 type DashboardProps = {
   email: string | null;
@@ -19,6 +20,7 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
       { id: "words" as const, label: "Words" },
       { id: "verbs" as const, label: "Verbs" },
       { id: "pikkusanat" as const, label: "Pikkusanat" },
+      { id: "review" as const, label: "Review" },
       { id: "import" as const, label: "Import" }
     ],
     []
@@ -61,6 +63,8 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
       <main>
         {activeTab === "import" ? (
           <ImportPage />
+        ) : activeTab === "review" ? (
+          <ReviewPage />
         ) : (
           <DatasetTable config={DATASET_CONFIGS[activeTab]} />
         )}
