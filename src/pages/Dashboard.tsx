@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { DatasetTable } from "../components/DatasetTable";
+import { NavDrawer } from "../components/NavDrawer";
+import { NavGrid, type NavSectionId } from "../components/NavGrid";
+import { TopBar } from "../components/TopBar";
 import { DATASET_CONFIGS } from "../types/datasets";
 import { ImportPage } from "./ImportPage";
 import { ReviewPage } from "./ReviewPage";
@@ -11,10 +14,9 @@ type DashboardProps = {
 };
 
 export function Dashboard({ email, onSignOut }: DashboardProps) {
-  const [activeSection, setActiveSection] = useState<
-    "review" | "verb-review" | "words" | "verbs" | "pikkusanat" | "import"
-  >("review");
+  const [activeSection, setActiveSection] = useState<NavSectionId>("review");
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -25,69 +27,36 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
     }
   }
 
+  function handleSectionSelect(id: NavSectionId) {
+    setActiveSection(id);
+    setMobileMenuOpen(false);
+  }
+
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div>
-          <h1>SisuCards</h1>
-          <p className="muted">{email ?? "Authenticated user"}</p>
-        </div>
-        <button onClick={handleSignOut} disabled={isSigningOut}>
-          {isSigningOut ? "Signing out..." : "Sign out"}
-        </button>
-      </header>
-
-      <nav className="top-menu">
-        <button
-          type="button"
-          className={activeSection === "review" ? "active" : ""}
-          onClick={() => setActiveSection("review")}
-        >
-          Review
-        </button>
-        <button
-          type="button"
-          className={activeSection === "verb-review" ? "active" : ""}
-          onClick={() => setActiveSection("verb-review")}
-        >
-          Verb review
-        </button>
-        <button
-          type="button"
-          className={activeSection === "words" ? "active" : ""}
-          onClick={() => setActiveSection("words")}
-        >
-          Words
-        </button>
-        <button
-          type="button"
-          className={activeSection === "verbs" ? "active" : ""}
-          onClick={() => setActiveSection("verbs")}
-        >
-          Verbs
-        </button>
-        <button
-          type="button"
-          className={activeSection === "pikkusanat" ? "active" : ""}
-          onClick={() => setActiveSection("pikkusanat")}
-        >
-          Pikkusanat
-        </button>
-        <button
-          type="button"
-          className={activeSection === "import" ? "active" : ""}
-          onClick={() => setActiveSection("import")}
-        >
-          Import
-        </button>
-      </nav>
+      <TopBar
+        email={email}
+        onSignOut={handleSignOut}
+        isSigningOut={isSigningOut}
+        menuOpen={mobileMenuOpen}
+        onMenuToggle={() => setMobileMenuOpen((open) => !open)}
+      />
+      <NavGrid activeId={activeSection} onSelect={setActiveSection} />
+      <NavDrawer
+        open={mobileMenuOpen}
+        activeId={activeSection}
+        onSelect={handleSectionSelect}
+        onClose={() => setMobileMenuOpen(false)}
+      />
 
       <main>
         {activeSection === "review" ? <ReviewPage /> : null}
         {activeSection === "verb-review" ? <VerbReviewPage /> : null}
         {activeSection === "words" ? <DatasetTable config={DATASET_CONFIGS.words} /> : null}
         {activeSection === "verbs" ? <DatasetTable config={DATASET_CONFIGS.verbs} /> : null}
-        {activeSection === "pikkusanat" ? <DatasetTable config={DATASET_CONFIGS.pikkusanat} /> : null}
+        {activeSection === "pikkusanat" ? (
+          <DatasetTable config={DATASET_CONFIGS.pikkusanat} />
+        ) : null}
         {activeSection === "import" ? <ImportPage /> : null}
       </main>
     </div>

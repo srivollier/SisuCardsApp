@@ -1,4 +1,7 @@
 import { useMemo, useState } from "react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { FormFieldTextarea } from "../components/FormField";
 import { supabase } from "../lib/supabaseClient";
 import { DATASET_CONFIGS } from "../types/datasets";
 import { parsePastedText, ParseResult } from "../utils/importParser";
@@ -121,33 +124,34 @@ export function ImportPage() {
   }
 
   return (
-    <section className="card">
-      <h2>Bulk import</h2>
-      <p className="muted">
-        Paste CSV/TSV text (comma, semicolon, or tab). The app auto-detects dataset by headers.
-      </p>
+    <Card
+      title="Bulk import"
+      description="Paste CSV/TSV text (comma, semicolon, or tab). The app auto-detects dataset by headers."
+    >
+      <FormFieldTextarea
+        label="Pasted data"
+        rows={12}
+        value={rawText}
+        onChange={(event) => setRawText(event.target.value)}
+        placeholder="Paste CSV/TSV here..."
+      />
 
-      <label>
-        Pasted data
-        <textarea
-          rows={12}
-          value={rawText}
-          onChange={(event) => setRawText(event.target.value)}
-          placeholder="Paste CSV/TSV here..."
-        />
-      </label>
-
-      <div className="inline-actions">
-        <button type="button" onClick={handleAnalyze}>
+      <div className="inline-actions" style={{ marginTop: "var(--space-4)" }}>
+        <Button variant="secondary" type="button" onClick={handleAnalyze}>
           Analyze
-        </button>
-        <button type="button" onClick={handleImport} disabled={!parsed?.dataset || isImporting}>
+        </Button>
+        <Button
+          variant="primary"
+          type="button"
+          onClick={handleImport}
+          disabled={!parsed?.dataset || isImporting}
+        >
           {isImporting ? "Importing..." : "Import valid rows"}
-        </button>
+        </Button>
       </div>
 
       {parsed ? (
-        <div className="card subtle-card">
+        <div className="card subtle-card" style={{ marginTop: "var(--space-4)" }}>
           <p>
             <strong>Detected dataset:</strong> {parsed.dataset ?? "unknown"}
           </p>
@@ -165,7 +169,7 @@ export function ImportPage() {
       ) : null}
 
       {previewRows.length > 0 ? (
-        <div className="table-wrapper">
+        <div className="table-wrapper" style={{ marginTop: "var(--space-4)" }}>
           <table>
             <thead>
               <tr>
@@ -190,7 +194,7 @@ export function ImportPage() {
       ) : null}
 
       {summary ? (
-        <div className="card subtle-card">
+        <div className="card subtle-card" style={{ marginTop: "var(--space-4)" }}>
           <h3>Import summary</h3>
           <p>
             <strong>Total rows:</strong> {summary.totalRows}
@@ -221,6 +225,6 @@ export function ImportPage() {
           )}
         </div>
       ) : null}
-    </section>
+    </Card>
   );
 }

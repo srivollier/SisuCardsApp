@@ -1,4 +1,7 @@
 import { PointerEvent, useRef, useState } from "react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { FormFieldInput, FormFieldSelect } from "../components/FormField";
 import {
   getVerbReviewQueue,
   recordVerbReview
@@ -167,44 +170,46 @@ export function VerbReviewPage() {
     : "none";
 
   return (
-    <section className="card">
-      <h2>Verb review</h2>
-      <p className="muted">
-        Practice verb conjugations: random tense (présent / imparfait) and pronoun (minä, sinä,
-        hän, me, te, he).
-      </p>
-
-      <div className="inline-actions review-controls">
-        <label>
-          Mode
-          <select value={mode} onChange={(event) => setMode(event.target.value as VerbReviewMode)}>
-            <option value="weak-first">Weak first</option>
-            <option value="random">Random</option>
-          </select>
-        </label>
-
-        <label>
-          Session size
-          <input
-            type="number"
-            min={1}
-            max={200}
-            value={sessionLimit}
-            onChange={(event) => {
-              const parsed = Number(event.target.value);
-              setSessionLimit(Number.isFinite(parsed) ? parsed : DEFAULT_SESSION_LIMIT);
-            }}
-          />
-        </label>
-
-        <button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
-          {isLoading ? "Loading..." : queue.length === 0 ? "Start session" : "Restart session"}
-        </button>
+    <Card
+      title="Verb review"
+      description="Practice verb conjugations: random tense (présent / imparfait) and pronoun (minä, sinä, hän, me, te, he)."
+    >
+      <div className="review-controls">
+        <FormFieldSelect
+          label="Mode"
+          value={mode}
+          onChange={(event) => setMode(event.target.value as VerbReviewMode)}
+          options={[
+            { value: "weak-first", label: "Weak first" },
+            { value: "random", label: "Random" }
+          ]}
+        />
+        <FormFieldInput
+          label="Session size"
+          type="number"
+          min={1}
+          max={200}
+          value={sessionLimit}
+          onChange={(event) => {
+            const parsed = Number(event.target.value);
+            setSessionLimit(Number.isFinite(parsed) ? parsed : DEFAULT_SESSION_LIMIT);
+          }}
+        />
+        <div style={{ display: "flex", alignItems: "flex-end" }}>
+          <Button
+            variant="primary"
+            type="button"
+            onClick={() => void loadQueue()}
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : queue.length === 0 ? "Start session" : "Restart session"}
+          </Button>
+        </div>
       </div>
 
       {error ? <p className="error">{error}</p> : null}
 
-      <div className="inline-actions">
+      <div className="inline-actions" style={{ marginTop: "var(--space-2)" }}>
         <strong>
           Progress:{" "}
           {queue.length === 0
@@ -218,24 +223,24 @@ export function VerbReviewPage() {
       ) : null}
 
       {sessionFinished ? (
-        <div className="card subtle-card">
+        <div className="card subtle-card" style={{ marginTop: "var(--space-4)" }}>
           <h3>Session complete</h3>
           <p>You reviewed {queue.length} card(s).</p>
-          <button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
+          <Button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
             Start again
-          </button>
+          </Button>
         </div>
       ) : null}
 
       {currentCard ? (
         <div
           className="card subtle-card review-card"
+          style={{ marginTop: "var(--space-4)", transform: cardTransform }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
           onPointerCancel={handlePointerEnd}
           onClick={handleCardClick}
-          style={{ transform: cardTransform }}
         >
           <p className="muted">Question</p>
           <h3>{getQuestion(currentCard) || "-"}</h3>
@@ -247,15 +252,20 @@ export function VerbReviewPage() {
           </p>
 
           <div className="inline-actions">
-            <button type="button" onClick={() => setRevealed(true)} disabled={revealed || isSubmitting}>
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setRevealed(true)}
+              disabled={revealed || isSubmitting}
+            >
               Show answer
-            </button>
-            <button type="button" onClick={advanceCard} disabled={isSubmitting}>
+            </Button>
+            <Button variant="secondary" type="button" onClick={advanceCard} disabled={isSubmitting}>
               Skip
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}
-    </section>
+    </Card>
   );
 }

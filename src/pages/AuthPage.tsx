@@ -1,4 +1,7 @@
 import { FormEvent, useState } from "react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { FormFieldInput } from "../components/FormField";
 import { supabase } from "../lib/supabaseClient";
 
 type AuthMode = "login" | "signup";
@@ -54,56 +57,53 @@ export function AuthPage() {
   }
 
   return (
-    <div className="card auth-card">
-      <h1>SisuCards</h1>
-      <p className="muted">Finnish learning datasets with Supabase</p>
-
-      <div className="inline-actions">
-        <button
+    <Card
+      title="SisuCards"
+      description="Finnish learning datasets with Supabase"
+      className="auth-card"
+    >
+      <div className="inline-actions" style={{ marginBottom: "var(--space-4)" }}>
+        <Button
+          variant={mode === "login" ? "primary" : "secondary"}
           type="button"
-          className={mode === "login" ? "active" : ""}
           onClick={() => setMode("login")}
         >
           Log in
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={mode === "signup" ? "primary" : "secondary"}
           type="button"
-          className={mode === "signup" ? "active" : ""}
           onClick={() => setMode("signup")}
         >
           Sign up
-        </button>
+        </Button>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
-        <label>
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete={mode === "login" ? "current-password" : "new-password"}
-            required
-          />
-        </label>
+        <FormFieldInput
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          autoComplete="email"
+          required
+        />
+        <FormFieldInput
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          autoComplete={mode === "login" ? "current-password" : "new-password"}
+          required
+        />
 
         {error ? <p className="error">{error}</p> : null}
         {info ? <p className="success">{info}</p> : null}
 
-        <button type="submit" disabled={isSubmitting}>
+        <Button type="submit" variant="primary" disabled={isSubmitting} style={{ marginTop: "var(--space-3)" }}>
           {isSubmitting ? "Please wait..." : mode === "login" ? "Log in" : "Create account"}
-        </button>
+        </Button>
       </form>
-    </div>
+    </Card>
   );
 }

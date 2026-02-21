@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { IconDelete, IconEdit } from "./Icons";
 import { supabase } from "../lib/supabaseClient";
 import { DatasetConfig, emptyRowFromConfig } from "../types/datasets";
 
@@ -233,10 +234,12 @@ export function DatasetTable({ config }: DatasetTableProps) {
                   ))}
                   <td>
                     <div className="inline-actions">
-                      <button type="button" onClick={() => beginEdit(row)}>
+                      <button type="button" onClick={() => beginEdit(row)} className="icon-with-text">
+                        <IconEdit aria-hidden />
                         Edit
                       </button>
-                      <button type="button" onClick={() => handleDelete(String(row.id))}>
+                      <button type="button" onClick={() => handleDelete(String(row.id))} className="icon-with-text">
+                        <IconDelete aria-hidden />
                         Delete
                       </button>
                     </div>

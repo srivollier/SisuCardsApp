@@ -1,4 +1,7 @@
 import { PointerEvent, useMemo, useRef, useState } from "react";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { FormFieldInput, FormFieldSelect } from "../components/FormField";
 import { getReviewQueue, recordReview } from "../features/review/reviewService";
 import { ReviewCard, ReviewDirection, ReviewMode, ReviewResult } from "../features/review/types";
 
@@ -159,52 +162,56 @@ export function ReviewPage() {
     : "none";
 
   return (
-    <section className="card">
-      <h2>Review</h2>
-      <p className="muted">Practice your cards one-by-one with server-side progress tracking.</p>
-
-      <div className="inline-actions review-controls">
-        <label>
-          Mode
-          <select value={mode} onChange={(event) => setMode(event.target.value as ReviewMode)}>
-            <option value="weak-first">Weak first</option>
-            <option value="random">Random</option>
-          </select>
-        </label>
-
-        <label>
-          Direction
-          <select
-            value={direction}
-            onChange={(event) => setDirection(event.target.value as ReviewDirection)}
+    <Card
+      title="Review"
+      description="Practice your cards one-by-one with server-side progress tracking."
+      watermark
+    >
+      <div className="review-controls">
+        <FormFieldSelect
+          label="Mode"
+          value={mode}
+          onChange={(event) => setMode(event.target.value as ReviewMode)}
+          options={[
+            { value: "weak-first", label: "Weak first" },
+            { value: "random", label: "Random" }
+          ]}
+        />
+        <FormFieldSelect
+          label="Direction"
+          value={direction}
+          onChange={(event) => setDirection(event.target.value as ReviewDirection)}
+          options={[
+            { value: "fi-fr", label: "FI → FR" },
+            { value: "fr-fi", label: "FR → FI" }
+          ]}
+        />
+        <FormFieldInput
+          label="Session size"
+          type="number"
+          min={1}
+          max={200}
+          value={sessionLimit}
+          onChange={(event) => {
+            const parsed = Number(event.target.value);
+            setSessionLimit(Number.isFinite(parsed) ? parsed : DEFAULT_SESSION_LIMIT);
+          }}
+        />
+        <div style={{ display: "flex", alignItems: "flex-end" }}>
+          <Button
+            variant="primary"
+            type="button"
+            onClick={() => void loadQueue()}
+            disabled={isLoading}
           >
-            <option value="fi-fr">FI -&gt; FR</option>
-            <option value="fr-fi">FR -&gt; FI</option>
-          </select>
-        </label>
-
-        <label>
-          Session size
-          <input
-            type="number"
-            min={1}
-            max={200}
-            value={sessionLimit}
-            onChange={(event) => {
-              const parsed = Number(event.target.value);
-              setSessionLimit(Number.isFinite(parsed) ? parsed : DEFAULT_SESSION_LIMIT);
-            }}
-          />
-        </label>
-
-        <button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
-          {isLoading ? "Loading..." : queue.length === 0 ? "Start session" : "Restart session"}
-        </button>
+            {isLoading ? "Loading..." : queue.length === 0 ? "Start session" : "Restart session"}
+          </Button>
+        </div>
       </div>
 
       {error ? <p className="error">{error}</p> : null}
 
-      <div className="inline-actions">
+      <div className="inline-actions" style={{ marginTop: "var(--space-2)" }}>
         <strong>
           Progress:{" "}
           {queue.length === 0
@@ -218,24 +225,24 @@ export function ReviewPage() {
       ) : null}
 
       {sessionFinished ? (
-        <div className="card subtle-card">
+        <div className="card subtle-card" style={{ marginTop: "var(--space-4)" }}>
           <h3>Session complete</h3>
           <p>You reviewed {queue.length} card(s).</p>
-          <button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
+          <Button type="button" onClick={() => void loadQueue()} disabled={isLoading}>
             Start again
-          </button>
+          </Button>
         </div>
       ) : null}
 
       {currentCard ? (
         <div
           className="card subtle-card review-card"
+          style={{ marginTop: "var(--space-4)", transform: cardTransform }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
           onPointerCancel={handlePointerEnd}
           onClick={handleCardClick}
-          style={{ transform: cardTransform }}
         >
           <p className="muted">Question</p>
           <h3>{getQuestion(currentCard, direction) || "-"}</h3>
@@ -247,27 +254,30 @@ export function ReviewPage() {
           </p>
 
           <div className="inline-actions">
-            <button type="button" onClick={() => setRevealed(true)} disabled={revealed || isSubmitting}>
+            <Button
+              variant="ghost"
+              type="button"
+              onClick={() => setRevealed(true)}
+              disabled={revealed || isSubmitting}
+            >
               Show answer
-            </button>
-            <button type="button" onClick={advanceCard} disabled={isSubmitting}>
+            </Button>
+            <Button variant="secondary" type="button" onClick={advanceCard} disabled={isSubmitting}>
               Skip
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}
 
       {queue.length > 0 ? (
-        <div className="card subtle-card">
+        <div className="card subtle-card" style={{ marginTop: "var(--space-4)" }}>
           <h3>Session stats preview</h3>
-          <label>
-            Search
-            <input
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search FI or FR..."
-            />
-          </label>
+          <FormFieldInput
+            label="Search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search FI or FR..."
+          />
 
           <div className="table-wrapper">
             <table>
@@ -305,6 +315,6 @@ export function ReviewPage() {
           </div>
         </div>
       ) : null}
-    </section>
+    </Card>
   );
 }
