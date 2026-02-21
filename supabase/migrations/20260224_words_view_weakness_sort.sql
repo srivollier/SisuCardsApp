@@ -1,7 +1,10 @@
 -- Extend words_with_review_stats with id, verb_type, updated_at, and computed weakness
 -- (same formula as front-end computeWeaknessScore)
+-- Drop first so we can change column names (e.g. card_id -> id).
 
-create or replace view public.words_with_review_stats as
+drop view if exists public.words_with_review_stats;
+
+create view public.words_with_review_stats as
 select
   w.id,
   w.user_id,
