@@ -229,9 +229,13 @@ export function DatasetTable({ config }: DatasetTableProps) {
             ) : (
               rows.map((row) => (
                 <tr key={String(row.id)}>
-                  {config.columns.map((column) => (
-                    <td key={column.key}>{String(row[column.key] ?? "")}</td>
-                  ))}
+                  {config.columns.map((column) => {
+                    const value =
+                      config.id === "words" && column.key === "fi" && row.verb_type != null
+                        ? `${String(row.fi ?? "")} (${row.verb_type})`
+                        : String(row[column.key] ?? "");
+                    return <td key={column.key}>{value}</td>;
+                  })}
                   <td>
                     <div className="inline-actions">
                       <button type="button" onClick={() => beginEdit(row)} className="icon-with-text">
