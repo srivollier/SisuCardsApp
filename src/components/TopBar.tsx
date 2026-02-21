@@ -1,4 +1,4 @@
-const LOGO_SRC = "/favico/apple-touch-icon.png";
+const LOGO_SRC = `${import.meta.env.BASE_URL}favico/apple-touch-icon.png`;
 
 type TopBarProps = {
   email: string | null;

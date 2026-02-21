@@ -8,7 +8,7 @@ type CardProps = HTMLAttributes<HTMLElement> & {
   children: React.ReactNode;
 };
 
-const LOGO_WATERMARK_SRC = "/favico/apple-touch-icon.png";
+const LOGO_WATERMARK_SRC = `${import.meta.env.BASE_URL}favico/apple-touch-icon.png`;
 
 export function Card({
   title,
