@@ -4,12 +4,16 @@ export type DatasetColumn = {
   key: string;
   label: string;
   required?: boolean;
+  /** If true, column is shown in table but omitted from add/edit form */
+  readOnly?: boolean;
 };
 
 export type DatasetConfig = {
   id: DatasetName;
   label: string;
   table: DatasetName;
+  /** If set, list data is fetched from this table/view instead of table (mutations still use table) */
+  listTable?: string;
   keySourceField: string;
   keyColumn: string;
   searchColumns: string[];
@@ -21,12 +25,14 @@ export const DATASET_CONFIGS: Record<DatasetName, DatasetConfig> = {
     id: "words",
     label: "Words",
     table: "words",
+    listTable: "words_with_review_stats",
     keySourceField: "fi",
     keyColumn: "fi_key",
     searchColumns: ["fi", "fr"],
     columns: [
       { key: "fi", label: "finnois", required: true },
-      { key: "fr", label: "francais" }
+      { key: "fr", label: "francais" },
+      { key: "weakness", label: "weakness", readOnly: true }
     ]
   },
   verbs: {
@@ -71,8 +77,10 @@ export const DATASET_CONFIGS: Record<DatasetName, DatasetConfig> = {
 };
 
 export function emptyRowFromConfig(config: DatasetConfig): Record<string, string> {
-  return config.columns.reduce<Record<string, string>>((acc, column) => {
-    acc[column.key] = "";
-    return acc;
-  }, {});
+  return config.columns
+    .filter((column) => !column.readOnly)
+    .reduce<Record<string, string>>((acc, column) => {
+      acc[column.key] = "";
+      return acc;
+    }, {});
 }

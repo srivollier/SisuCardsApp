@@ -13,12 +13,18 @@ function escapeIlikeTerm(term: string): string {
   return term.replaceAll("%", "\\%").replaceAll(",", "\\,");
 }
 
+const DEFAULT_SORT_KEY = "updated_at";
+const DEFAULT_SORT_ASC = false;
+
 export function DatasetTable({ config }: DatasetTableProps) {
+  const listTable = config.listTable ?? config.table;
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [count, setCount] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [sortKey, setSortKey] = useState(DEFAULT_SORT_KEY);
+  const [sortAsc, setSortAsc] = useState(DEFAULT_SORT_ASC);
   const [formData, setFormData] = useState<Record<string, string>>(() => emptyRowFromConfig(config));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,12 +32,16 @@ export function DatasetTable({ config }: DatasetTableProps) {
   const [error, setError] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState(0);
 
+  const sortable = config.listTable != null;
+
   useEffect(() => {
     setFormData(emptyRowFromConfig(config));
     setEditingId(null);
     setPage(1);
     setSearchInput("");
     setSearchTerm("");
+    setSortKey(DEFAULT_SORT_KEY);
+    setSortAsc(DEFAULT_SORT_ASC);
   }, [config]);
 
   useEffect(() => {
@@ -45,9 +55,9 @@ export function DatasetTable({ config }: DatasetTableProps) {
       const to = from + PAGE_SIZE - 1;
 
       let query = supabase
-        .from(config.table)
+        .from(listTable)
         .select("*", { count: "exact" })
-        .order("updated_at", { ascending: false })
+        .order(sortKey, { ascending: sortAsc })
         .range(from, to);
 
       const trimmedSearch = searchTerm.trim();
@@ -78,7 +88,7 @@ export function DatasetTable({ config }: DatasetTableProps) {
     return () => {
       isCancelled = true;
     };
-  }, [config, page, refreshToken, searchTerm]);
+  }, [config, listTable, page, refreshToken, searchTerm, sortKey, sortAsc]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(count / PAGE_SIZE)), [count]);
 
@@ -99,11 +109,18 @@ export function DatasetTable({ config }: DatasetTableProps) {
 
   function beginEdit(row: Record<string, unknown>) {
     const nextForm = emptyRowFromConfig(config);
-    config.columns.forEach((column) => {
+    config.columns.filter((c) => !c.readOnly).forEach((column) => {
       nextForm[column.key] = String(row[column.key] ?? "");
     });
     setFormData(nextForm);
     setEditingId(String(row.id));
+  }
+
+  function handleSort(columnKey: string) {
+    if (!sortable) return;
+    setSortKey((prev) => (prev === columnKey ? prev : columnKey));
+    setSortAsc((prev) => (sortKey === columnKey ? !prev : true));
+    setPage(1);
   }
 
   function resetForm() {
@@ -116,13 +133,14 @@ export function DatasetTable({ config }: DatasetTableProps) {
     setError(null);
     setSaving(true);
 
-    const payload = config.columns.reduce<Record<string, string>>((acc, column) => {
+    const editableColumns = config.columns.filter((c) => !c.readOnly);
+    const payload = editableColumns.reduce<Record<string, string>>((acc, column) => {
       acc[column.key] = (formData[column.key] ?? "").trim();
       return acc;
     }, {});
 
     try {
-      for (const column of config.columns) {
+      for (const column of editableColumns) {
         if (column.required && !payload[column.key]) {
           throw new Error(`Field '${column.label}' is required.`);
         }
@@ -183,7 +201,7 @@ export function DatasetTable({ config }: DatasetTableProps) {
       </form>
 
       <form className="grid-form" onSubmit={handleSubmit}>
-        {config.columns.map((column) => (
+        {config.columns.filter((column) => !column.readOnly).map((column) => (
           <label key={column.key}>
             {column.label}
             <input
@@ -215,9 +233,26 @@ export function DatasetTable({ config }: DatasetTableProps) {
         <table>
           <thead>
             <tr>
-              {config.columns.map((column) => (
-                <th key={column.key}>{column.label}</th>
-              ))}
+              {config.columns.map((column) => {
+                const isSorted = sortable && sortKey === column.key;
+                return (
+                  <th key={column.key}>
+                    {sortable ? (
+                      <button
+                        type="button"
+                        className="table-sort-header"
+                        onClick={() => handleSort(column.key)}
+                        aria-sort={isSorted ? (sortAsc ? "ascending" : "descending") : undefined}
+                      >
+                        {column.label}
+                        {isSorted ? (sortAsc ? " \u2191" : " \u2193") : null}
+                      </button>
+                    ) : (
+                      column.label
+                    )}
+                  </th>
+                );
+              })}
               <th>actions</th>
             </tr>
           </thead>
@@ -230,10 +265,15 @@ export function DatasetTable({ config }: DatasetTableProps) {
               rows.map((row) => (
                 <tr key={String(row.id)}>
                   {config.columns.map((column) => {
-                    const value =
-                      config.id === "words" && column.key === "fi" && row.verb_type != null
-                        ? `${String(row.fi ?? "")} (${row.verb_type})`
-                        : String(row[column.key] ?? "");
+                    let value: string;
+                    if (config.id === "words" && column.key === "fi" && row.verb_type != null) {
+                      value = `${String(row.fi ?? "")} (${row.verb_type})`;
+                    } else if (column.key === "weakness" && row.weakness != null) {
+                      const n = Number(row.weakness);
+                      value = Number.isFinite(n) ? n.toFixed(2) : String(row.weakness);
+                    } else {
+                      value = String(row[column.key] ?? "");
+                    }
                     return <td key={column.key}>{value}</td>;
                   })}
                   <td>

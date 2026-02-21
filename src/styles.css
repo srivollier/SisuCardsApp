@@ -646,6 +646,28 @@ th {
   background: var(--color-bg);
 }
 
+.table-sort-header {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.table-sort-header:hover {
+  text-decoration: underline;
+}
+
+.table-sort-header:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
 /* ---------------------------------------------------------------------------
    Mobile
    --------------------------------------------------------------------------- */
