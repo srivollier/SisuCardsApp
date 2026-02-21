@@ -21,12 +21,16 @@ function getErrorMessage(unknownError: unknown, fallback: string): string {
   return fallback;
 }
 
+function formatFi(card: ReviewCard): string {
+  return card.fi + (card.verb_type ? ` (${card.verb_type})` : "");
+}
+
 function getQuestion(card: ReviewCard, direction: ReviewDirection): string {
-  return direction === "fi-fr" ? card.fi : card.fr ?? "";
+  return direction === "fi-fr" ? formatFi(card) : card.fr ?? "";
 }
 
 function getAnswer(card: ReviewCard, direction: ReviewDirection): string {
-  return direction === "fi-fr" ? card.fr ?? "" : card.fi;
+  return direction === "fi-fr" ? card.fr ?? "" : formatFi(card);
 }
 
 export function ReviewPage() {
@@ -300,7 +304,7 @@ export function ReviewPage() {
                 ) : (
                   filteredStats.map((card) => (
                     <tr key={card.card_id}>
-                      <td>{card.fi}</td>
+                      <td>{formatFi(card)}</td>
                       <td>{card.fr ?? ""}</td>
                       <td>{card.reviews_count}</td>
                       <td>{card.correct_count}</td>

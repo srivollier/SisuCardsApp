@@ -6,6 +6,7 @@ type RawReviewCard = {
   user_id: string;
   fi: string;
   fr: string | null;
+  verb_type?: string | null;
   reviews_count: number | null;
   correct_count: number | null;
   incorrect_count: number | null;
@@ -39,6 +40,7 @@ function normalizeCard(raw: RawReviewCard): ReviewCard {
     user_id: raw.user_id,
     fi: raw.fi,
     fr: raw.fr,
+    verb_type: raw.verb_type ?? null,
     ...stats,
     weaknessScore: computeWeaknessScore(stats)
   };
@@ -65,7 +67,9 @@ export function computeWeaknessScore(stats: ReviewStats): number {
 export async function getReviewQueue(input: GetReviewQueueInput): Promise<ReviewCard[]> {
   const safeLimit = Number.isFinite(input.limit) ? Math.max(1, Math.floor(input.limit)) : 20;
 
-  const { data: words, error: wordsError } = await supabase.from("words").select("id,user_id,fi,fr");
+  const { data: words, error: wordsError } = await supabase
+    .from("words")
+    .select("id,user_id,fi,fr,verb_type");
 
   if (wordsError) {
     throw wordsError;
@@ -102,6 +106,7 @@ export async function getReviewQueue(input: GetReviewQueueInput): Promise<Review
       user_id: String(base.user_id ?? ""),
       fi: String(base.fi ?? ""),
       fr: base.fr == null ? null : String(base.fr),
+      verb_type: base.verb_type == null ? null : String(base.verb_type),
       reviews_count: stat ? Number(stat.reviews_count ?? 0) : 0,
       correct_count: stat ? Number(stat.correct_count ?? 0) : 0,
       incorrect_count: stat ? Number(stat.incorrect_count ?? 0) : 0,

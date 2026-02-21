@@ -15,6 +15,7 @@ export type ReviewCard = ReviewStats & {
   user_id: string;
   fi: string;
   fr: string | null;
+  verb_type?: string | null;
   weaknessScore: number;
 };
 
