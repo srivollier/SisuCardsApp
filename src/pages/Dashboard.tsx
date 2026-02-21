@@ -3,6 +3,7 @@ import { DatasetTable } from "../components/DatasetTable";
 import { DATASET_CONFIGS } from "../types/datasets";
 import { ImportPage } from "./ImportPage";
 import { ReviewPage } from "./ReviewPage";
+import { VerbReviewPage } from "./VerbReviewPage";
 
 type DashboardProps = {
   email: string | null;
@@ -10,9 +11,9 @@ type DashboardProps = {
 };
 
 export function Dashboard({ email, onSignOut }: DashboardProps) {
-  const [activeSection, setActiveSection] = useState<"review" | "words" | "verbs" | "pikkusanat" | "import">(
-    "review"
-  );
+  const [activeSection, setActiveSection] = useState<
+    "review" | "verb-review" | "words" | "verbs" | "pikkusanat" | "import"
+  >("review");
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleSignOut() {
@@ -46,6 +47,13 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
         </button>
         <button
           type="button"
+          className={activeSection === "verb-review" ? "active" : ""}
+          onClick={() => setActiveSection("verb-review")}
+        >
+          Verb review
+        </button>
+        <button
+          type="button"
           className={activeSection === "words" ? "active" : ""}
           onClick={() => setActiveSection("words")}
         >
@@ -76,6 +84,7 @@ export function Dashboard({ email, onSignOut }: DashboardProps) {
 
       <main>
         {activeSection === "review" ? <ReviewPage /> : null}
+        {activeSection === "verb-review" ? <VerbReviewPage /> : null}
         {activeSection === "words" ? <DatasetTable config={DATASET_CONFIGS.words} /> : null}
         {activeSection === "verbs" ? <DatasetTable config={DATASET_CONFIGS.verbs} /> : null}
         {activeSection === "pikkusanat" ? <DatasetTable config={DATASET_CONFIGS.pikkusanat} /> : null}
