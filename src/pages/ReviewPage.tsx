@@ -263,7 +263,7 @@ export function ReviewPage() {
                   speakFi(formatFi(currentCard));
                 }}
               >
-                <IconSpeaker aria-hidden="true" />
+                <IconSpeaker aria-hidden />
               </Button>
             ) : null}
           </div>
@@ -283,7 +283,7 @@ export function ReviewPage() {
                   speakFi(formatFi(currentCard));
                 }}
               >
-                <IconSpeaker aria-hidden="true" />
+                <IconSpeaker aria-hidden />
               </Button>
             ) : null}
           </div>

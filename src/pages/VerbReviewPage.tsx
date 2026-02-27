@@ -257,7 +257,7 @@ export function VerbReviewPage() {
                   speakFi(getQuestion(currentCard));
                 }}
               >
-                <IconSpeaker aria-hidden="true" />
+                <IconSpeaker aria-hidden />
               </Button>
             ) : null}
           </div>
@@ -277,7 +277,7 @@ export function VerbReviewPage() {
                   speakFi(currentCard.answer);
                 }}
               >
-                <IconSpeaker aria-hidden="true" />
+                <IconSpeaker aria-hidden />
               </Button>
             ) : null}
           </div>
