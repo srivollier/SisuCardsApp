@@ -2,6 +2,7 @@ import { PointerEvent, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { FormFieldInput, FormFieldSelect } from "../components/FormField";
+import { IconSpeaker } from "../components/Icons";
 import {
   getVerbReviewQueue,
   recordVerbReview
@@ -13,6 +14,7 @@ import {
   VerbReviewResult,
   VerbTense
 } from "../features/review/verbReviewTypes";
+import { isSpeechSupported, speakFi } from "../utils/speech";
 
 const DEFAULT_SESSION_LIMIT = 20;
 const SWIPE_THRESHOLD = 120;
@@ -243,10 +245,42 @@ export function VerbReviewPage() {
           onClick={handleCardClick}
         >
           <p className="muted">Question</p>
-          <h3>{getQuestion(currentCard) || "-"}</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <h3 style={{ margin: 0 }}>{getQuestion(currentCard) || "-"}</h3>
+            {isSpeechSupported() ? (
+              <Button
+                variant="ghost"
+                type="button"
+                aria-label="Listen to Finnish pronunciation"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  speakFi(getQuestion(currentCard));
+                }}
+              >
+                <IconSpeaker aria-hidden="true" />
+              </Button>
+            ) : null}
+          </div>
 
           <p className="muted">Answer</p>
-          <p className="review-answer">{revealed ? currentCard.answer || "-" : "???"}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <p className="review-answer" style={{ margin: 0 }}>
+              {revealed ? currentCard.answer || "-" : "???"}
+            </p>
+            {isSpeechSupported() && revealed ? (
+              <Button
+                variant="ghost"
+                type="button"
+                aria-label="Listen to Finnish pronunciation"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  speakFi(currentCard.answer);
+                }}
+              >
+                <IconSpeaker aria-hidden="true" />
+              </Button>
+            ) : null}
+          </div>
           <p className={`review-swipe-hint ${swipeClass}`}>
             {!revealed ? "Tap the card to reveal answer" : swipeLabel}
           </p>

@@ -49,3 +49,25 @@ export function IconDelete({ className, "aria-hidden": ariaHidden = true }: Icon
     </svg>
   );
 }
+
+/** Speaker icon for listen/pronunciation actions. Use with visible text and aria-hidden="true". */
+export function IconSpeaker({ className, "aria-hidden": ariaHidden = true }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden={ariaHidden}
+    >
+      <path d="M11 5H6l-4 4v2l4 4h5v-10z" />
+      <path d="M14 6.5a4 4 0 0 1 0 7" />
+      <path d="M16 4a7 7 0 0 1 0 12" />
+    </svg>
+  );
+}
